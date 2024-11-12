@@ -1,13 +1,17 @@
 import librosa
 from pathlib import Path
 from .result import Result
-from .file import has_cache, mark_cached, result_file_of
+from .file import has_cache, cache_file_of, calculate_md5
 
 
 def calculate_pitch(music: Path) -> Result:
-    result_file = result_file_of(music)
+    cache_file = cache_file_of(music)
+    md5 = calculate_md5(music)
+
     if has_cache(music):
-        return Result.load(result_file)
+        cache = Result.load(cache_file)
+        if md5 == cache.md5:
+            return cache
 
     # No cache, must calc
     y, sr = librosa.load(music, sr=None)
@@ -25,8 +29,8 @@ def calculate_pitch(music: Path) -> Result:
         voiced_flag=voiced_flag,
         voiced_probs=voiced_probs,
         times=times,
+        md5=md5,
     )
 
-    mark_cached(music)
-    result.store(result_file)
+    result.store(cache_file)
     return result
