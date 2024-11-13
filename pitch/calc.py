@@ -1,10 +1,25 @@
 import librosa
 import logging
+import math
 from pathlib import Path
 from .result import Result
 from .file import has_cache, cache_file_of, calculate_md5
 
 logger = logging.getLogger(__name__)
+
+C2_hz = float(librosa.note_to_hz("C2"))
+C5_hz = float(librosa.note_to_hz("C5"))
+
+
+def percent_in_range(f: float):
+    f_min = C2_hz
+    f_max = C5_hz
+
+    N = 12 * math.log2(f_max / f_min)
+    n = 12 * math.log2(f / f_min)
+
+    percent = n / N
+    return percent
 
 
 def calculate_pitch(music: Path) -> Result:
@@ -24,13 +39,11 @@ def calculate_pitch(music: Path) -> Result:
 
     logger.info("Recalculate pitch for file {music}")
     y, sr = librosa.load(music, sr=None)
-    C2_hz = float(librosa.note_to_hz("C2"))
-    C7_hz = float(librosa.note_to_hz("C7"))
     f0, voiced_flag, voiced_probs = librosa.pyin(
         y,
         sr=sr,
         fmin=C2_hz,
-        fmax=C7_hz,
+        fmax=C5_hz,
     )
     times = librosa.times_like(f0, sr=sr)
     result = Result(

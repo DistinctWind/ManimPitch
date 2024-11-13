@@ -2,6 +2,7 @@ import manim as mn
 import logging
 import librosa
 import re
+from .calc import percent_in_range
 
 logger = logging.getLogger(__name__)
 pattern = re.compile(r"([A-G])(#?)([1-7])([+-])(\d+)")
@@ -78,8 +79,8 @@ class PitchMeter(mn.VGroup):
         logger.info(f"hz = {hz}, note = {note}")
         pitch_name, sharp, octave, pom, cent = sub_part[0]
         cent = int(cent)
-        percent = cent + (50 if pom == "+" else 0)
-        percent = percent / 100
+        percent = percent_in_range(hz)
+        logger.info(f"percent = {percent}")
         pitch_name = mn.Text(
             pitch_name, font_size=self.font_size
         ).move_to(self.pitch_name.get_center())
