@@ -21,5 +21,5 @@ class VisualizePitch(mn.Animation):
         current = self.time * alpha
         current_f0 = self.f0(current)
         self.mobject: PitchMeter
-        self.mobject.hz.set_value(current_f0)
-        self.mobject.hz_text.next_to(self.mobject.hz)
+        self.mobject.set_hz(current_f0)
+        self.mobject.normalize()

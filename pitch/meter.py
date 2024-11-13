@@ -1,7 +1,10 @@
 import manim as mn
 import logging
+import librosa
+import re
 
 logger = logging.getLogger(__name__)
+pattern = re.compile(r"([A-G])(#?)([1-7])([+-])(\d+)")
 
 
 class PitchMeter(mn.VGroup):
@@ -14,6 +17,7 @@ class PitchMeter(mn.VGroup):
             width=0.3,
         )
 
+        self.font_size = font_size
         self.pitch_name = mn.Text("A", font_size=font_size)
         self.octave = mn.Text("4", font_size=font_size)
         self.sharp = mn.Text("#", font_size=font_size / 2)
@@ -38,10 +42,12 @@ class PitchMeter(mn.VGroup):
             width=self.main_group.width + 1.5,
             height=0.3,
         ).next_to(self.main_group, mn.DOWN)
-        self.hz = mn.DecimalNumber(440).next_to(
-            self.bar, mn.DOWN, buff=0.3
+        self.cent = mn.DecimalNumber(
+            1, num_decimal_places=0
+        ).next_to(self.bar, mn.DOWN, buff=0.3)
+        self.pom = mn.Text("+").next_to(
+            self.cent, direction=mn.LEFT
         )
-        self.hz_text = mn.Text("Hz").next_to(self.hz)
 
         super().__init__(
             self.pitch_scale,
@@ -50,9 +56,33 @@ class PitchMeter(mn.VGroup):
             self.octave,
             self.sharp,
             self.bar,
-            self.hz,
-            self.hz_text,
+            self.cent,
+            self.pom,
         )
 
     def normalize(self):
-        self.hz_text.next_to(self.hz)
+        self.pom.next_to(self.cent, direction=mn.LEFT)
+
+    def set_hz(self, hz: float):
+        note = librosa.hz_to_note(
+            hz, cents=True, unicode=False
+        )
+        sub_part = pattern.findall(note)
+        logger.info(f"hz = {hz}, note = {note}")
+        logger.info(f"sub_part = {sub_part}")
+        pitch_name, sharp, octave, pom, cent = sub_part[0]
+        pitch_name = mn.Text(
+            pitch_name, font_size=self.font_size
+        ).move_to(self.pitch_name.get_center())
+        octave = mn.Text(
+            octave, font_size=self.font_size
+        ).move_to(self.octave.get_center())
+        pom = mn.Text(pom).move_to(self.pom.get_center())
+        if len(sharp) == 0:
+            self.sharp.set_opacity(0)
+        else:
+            self.sharp.set_opacity(1)
+        self.pitch_name.become(pitch_name)
+        self.octave.become(octave)
+        self.pom.become(pom)
+        self.cent.set_value(int(cent))
