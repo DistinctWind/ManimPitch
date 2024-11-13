@@ -15,7 +15,7 @@ result = calculate_pitch(Path("vocal.wav"))
 
 class TestScene(mn.Scene):
     def construct(self):
-        pmeter = PitchMeter("C#")
+        pmeter = PitchMeter("B")
         self.add(pmeter)
         self.play(
             VisualizePitch(

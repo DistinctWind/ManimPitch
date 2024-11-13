@@ -15,7 +15,7 @@ class PitchMeter(mn.VGroup):
             stroke_width=0,
             fill_color=mn.BLUE,
             fill_opacity=1,
-            width=0.3,
+            width=0.7,
         )
 
         self.font_size = font_size
@@ -23,7 +23,7 @@ class PitchMeter(mn.VGroup):
         self.octave = mn.Text("4", font_size=font_size)
         self.sharp = mn.Text("#", font_size=font_size / 2)
 
-        self.pitch_scale.to_corner(mn.UL)
+        self.pitch_scale.to_corner(mn.UR)
         self.prob_indicator.stretch_to_fit_height(
             self.pitch_name.height + 1
         )
@@ -36,20 +36,23 @@ class PitchMeter(mn.VGroup):
             .arrange(buff=1)
             .move_to(mn.ORIGIN + 0.3 * mn.LEFT)
         )
-        self.sharp.next_to(self.main_group)
+        self.sharp.next_to(self.pitch_name, buff=0.1)
         self.sharp.align_to(self.main_group, mn.UP)
 
-        self.bar = mn.Rectangle(
-            width=self.main_group.width + 1.5,
-            height=0.3,
-        ).next_to(self.main_group, mn.DOWN)
-        self.cent = mn.DecimalNumber(
-            1, num_decimal_places=0
-        ).next_to(self.bar, mn.DOWN, buff=0.3)
-        self.pom = mn.Text("+").next_to(
-            self.cent, direction=mn.LEFT
+        self.bar = (
+            mn.Rectangle(
+                width=self.main_group.width + 1.5,
+                height=0.3,
+            )
+            .next_to(self.main_group, mn.DOWN)
+            .set_fill(mn.WHITE, opacity=1)
         )
-        self.cent_group = mn.VGroup(self.cent, self.pom)
+
+        self.triangle = (
+            mn.Triangle()
+            .scale(0.3)
+            .set_fill(mn.BLUE, opacity=1)
+        )
 
         super().__init__(
             self.pitch_scale,
@@ -58,14 +61,11 @@ class PitchMeter(mn.VGroup):
             self.octave,
             self.sharp,
             self.bar,
-            self.cent,
-            self.pom,
+            self.triangle,
         )
 
     def normalize(self):
-        self.pom.next_to(
-            self.cent, direction=mn.LEFT, buff=0.1
-        )
+        pass
 
     def set_status(self, hz: float, prob: float):
         self.prob_indicator.set_opacity(prob)
@@ -87,16 +87,13 @@ class PitchMeter(mn.VGroup):
         octave = mn.Text(
             octave, font_size=self.font_size
         ).move_to(self.octave.get_center())
-        pom = mn.Text(pom).move_to(self.pom.get_center())
         if len(sharp) == 0:
             self.sharp.set_opacity(0)
         else:
             self.sharp.set_opacity(1)
         self.pitch_name.become(pitch_name)
         self.octave.become(octave)
-        self.pom.become(pom)
-        self.cent.set_value(cent)
-        self.cent_group.move_to(
+        self.triangle.move_to(
             self.bar.get_left()
             + percent * mn.RIGHT * self.bar.width
             + mn.DOWN * self.bar.height
