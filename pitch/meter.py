@@ -48,6 +48,7 @@ class PitchMeter(mn.VGroup):
         self.pom = mn.Text("+").next_to(
             self.cent, direction=mn.LEFT
         )
+        self.cent_group = mn.VGroup(self.cent, self.pom)
 
         super().__init__(
             self.pitch_scale,
@@ -61,9 +62,15 @@ class PitchMeter(mn.VGroup):
         )
 
     def normalize(self):
-        self.pom.next_to(self.cent, direction=mn.LEFT)
+        self.pom.next_to(
+            self.cent, direction=mn.LEFT, buff=0.1
+        )
 
-    def set_hz(self, hz: float):
+    def set_status(self, hz: float, prob: float):
+        self.prob_indicator.set_opacity(prob)
+        if prob < 0.9:
+            logger.info("not voicing, skip")
+            return
         note = librosa.hz_to_note(
             hz, cents=True, unicode=False
         )

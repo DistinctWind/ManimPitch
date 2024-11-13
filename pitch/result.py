@@ -19,17 +19,20 @@ class Result:
     ) -> None:
         self.original_f0 = f0
         self.voiced_flag = voiced_flag
-        self.voiced_probs = voiced_probs
+        self.original_voiced_probs = voiced_probs
         self.times = times
         self.md5 = md5
 
         self.valid_f0 = f0[voiced_flag]
         self.valid_times = times[voiced_flag]
 
-        self.valid_f0 = moving_average(self.valid_f0, 100)
+        # self.valid_f0 = moving_average(self.valid_f0, 10)
 
         self.f0 = CubicSpline(
             self.valid_times, self.valid_f0
+        )
+        self.voiced_probs = CubicSpline(
+            self.times, self.original_voiced_probs
         )
         self.time = times[-1]
 
