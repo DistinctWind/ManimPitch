@@ -76,8 +76,10 @@ class PitchMeter(mn.VGroup):
         )
         sub_part = pattern.findall(note)
         logger.info(f"hz = {hz}, note = {note}")
-        logger.info(f"sub_part = {sub_part}")
         pitch_name, sharp, octave, pom, cent = sub_part[0]
+        cent = int(cent)
+        percent = cent + (50 if pom == "+" else 0)
+        percent = percent / 100
         pitch_name = mn.Text(
             pitch_name, font_size=self.font_size
         ).move_to(self.pitch_name.get_center())
@@ -92,4 +94,10 @@ class PitchMeter(mn.VGroup):
         self.pitch_name.become(pitch_name)
         self.octave.become(octave)
         self.pom.become(pom)
-        self.cent.set_value(int(cent))
+        self.cent.set_value(cent)
+        self.cent_group.move_to(
+            self.bar.get_left()
+            + percent * mn.RIGHT * self.bar.width
+            + mn.DOWN * self.bar.height
+            + mn.DOWN * 0.3
+        )
