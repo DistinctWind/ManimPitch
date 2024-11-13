@@ -4,6 +4,10 @@ from scipy.interpolate import CubicSpline
 import pickle
 
 
+def moving_average(x, w):
+    return np.convolve(x, np.ones(w), "same") / w
+
+
 class Result:
     def __init__(
         self,
@@ -21,6 +25,8 @@ class Result:
 
         self.valid_f0 = f0[voiced_flag]
         self.valid_times = times[voiced_flag]
+
+        self.valid_f0 = moving_average(self.valid_f0, 100)
 
         self.f0 = CubicSpline(
             self.valid_times, self.valid_f0
