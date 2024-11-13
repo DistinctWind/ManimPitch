@@ -10,4 +10,3 @@ logging.basicConfig(
 
 print(calculate_md5(Path("vocal.wav")))
 result = calculate_pitch(Path("vocal.wav"))
-print(result.time)
