@@ -23,11 +23,11 @@ class TestScene(mn.Scene):
         self.play(
             VisualizePitch(
                 pmeter,
-                10,
+                result.time,
                 result.f0,
                 result.voiced_probs,
             ),
-            run_time=10,
+            run_time=result.time,
             rate_func=mn.linear,
         )
         return super().construct()
