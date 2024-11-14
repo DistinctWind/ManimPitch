@@ -4,6 +4,8 @@ import librosa
 import re
 from .calc import percent_in_range
 
+scale_position = mn.UL
+
 logger = logging.getLogger(__name__)
 pattern = re.compile(r"([A-G])(#?)([1-7])([+-])(\d+)")
 
@@ -23,7 +25,7 @@ class PitchMeter(mn.VGroup):
         self.octave = mn.Text("4", font_size=font_size)
         self.sharp = mn.Text("#", font_size=font_size / 2)
 
-        self.pitch_scale.to_corner(mn.UR)
+        self.pitch_scale.to_corner(scale_position)
         self.prob_indicator.stretch_to_fit_height(
             self.pitch_name.height + 1
         )
@@ -52,6 +54,18 @@ class PitchMeter(mn.VGroup):
             mn.Triangle()
             .scale(0.3)
             .set_fill(mn.BLUE, opacity=1)
+            .move_to(
+                self.bar.get_center()
+                + self.bar.height * mn.DOWN
+                + 0.3 * mn.DOWN
+            )
+        )
+
+        self.lower_pitch_name = mn.Text("C2").next_to(
+            self.bar, direction=mn.LEFT
+        )
+        self.upper_pitch_name = mn.Text("C5").next_to(
+            self.bar, direction=mn.RIGHT
         )
 
         super().__init__(
@@ -62,6 +76,8 @@ class PitchMeter(mn.VGroup):
             self.sharp,
             self.bar,
             self.triangle,
+            self.lower_pitch_name,
+            self.upper_pitch_name,
         )
 
     def normalize(self):

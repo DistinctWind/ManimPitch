@@ -5,26 +5,29 @@ import logging
 import manim as mn
 from pitch.animation import VisualizePitch
 
+file_path = "vocal.wav"
+scale = "B"
+
 logging.basicConfig(
     level=logging.DEBUG,
     format="[%(asctime)s][%(levelname)s] %(message)s",
 )
 
-result = calculate_pitch(Path("vocal.wav"))
+result = calculate_pitch(Path(file_path))
 
 
 class TestScene(mn.Scene):
     def construct(self):
-        pmeter = PitchMeter("B")
+        pmeter = PitchMeter(scale)
         self.add(pmeter)
         self.play(
             VisualizePitch(
                 pmeter,
-                result.time,
+                10,
                 result.f0,
                 result.voiced_probs,
             ),
-            run_time=result.time,
+            run_time=10,
             rate_func=mn.linear,
         )
         return super().construct()
